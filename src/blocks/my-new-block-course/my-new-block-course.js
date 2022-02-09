@@ -53,10 +53,43 @@ registerBlockType("course-block/my-new-block-course", {
      * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
      */
     edit: (props) => {
-        // Creates a <p class='wp-block-cgb-block-react-lifecycle-block1'></p>.
-        // if ( ! props.attributes.categories ) {
+       let cats = [];
+       let selectedCat;
 
-        return <div>hello, i'm blocky</div>;
+       wp.apiFetch({
+           url: "/wp-json/wp/v2/categories",
+       }).then((categories) => {
+           props.setAttributes({
+               categories: categories,
+           });
+       });
+       if (props.attributes.categories) {
+           cats = props.attributes.categories;
+           selectedCat = props.attributes.selectedCategory;
+       }
+
+       console.log(props.attributes);
+
+       function updateCategory(e) {
+           props.setAttributes({
+               selectedCategory: e.target.value,
+           });
+       }
+
+       return (
+           <div>
+               <select onChange={updateCategory} value={selectedCat}>
+                   {cats.map((cat) => {
+                       return (
+                           <option value={cat.id} key={cat.id}>
+                               {cat.name}
+                           </option>
+                       );
+                   })}
+               </select>
+               <input type="text" placeholder="n0"></input>
+           </div>
+       );
     },
     /**
      * The save function defines the way in which the different attributes should be combined
@@ -64,4 +97,9 @@ registerBlockType("course-block/my-new-block-course", {
      *
      * The "save" property must be specified and must be a valid function.
      *
-     * @link https://wordpress.org/gutenberg/handbook/block-api/b
+     * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
+     */
+    save: function (props) {
+        return null;
+    },
+});

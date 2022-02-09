@@ -57,6 +57,14 @@ registerBlockType("course-block/my-new-block-course", {
   category: "common",
   // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
   keywords: [__("new course block — CGB Block"), __("CGB Example"), __("create-guten-block")],
+  attributes: {
+    categories: {
+      type: "object"
+    },
+    selectedCategory: {
+      type: "string"
+    }
+  },
 
   /**
    * The edit function describes the structure of your block in the context of the editor.
@@ -67,9 +75,41 @@ registerBlockType("course-block/my-new-block-course", {
    * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
    */
   edit: props => {
-    // Creates a <p class='wp-block-cgb-block-react-lifecycle-block1'></p>.
-    // if ( ! props.attributes.categories ) {
-    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "hello, i'm blocky");
+    let cats = [];
+    let selectedCat;
+    wp.apiFetch({
+      url: "/wp-json/wp/v2/categories"
+    }).then(categories => {
+      props.setAttributes({
+        categories: categories
+      });
+    });
+
+    if (props.attributes.categories) {
+      cats = props.attributes.categories;
+      selectedCat = props.attributes.selectedCategory;
+    }
+
+    console.log(props.attributes);
+
+    function updateCategory(e) {
+      props.setAttributes({
+        selectedCategory: e.target.value
+      });
+    }
+
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("select", {
+      onChange: updateCategory,
+      value: selectedCat
+    }, cats.map(cat => {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
+        value: cat.id,
+        key: cat.id
+      }, cat.name);
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+      type: "text",
+      placeholder: "n0"
+    }));
   },
 
   /**

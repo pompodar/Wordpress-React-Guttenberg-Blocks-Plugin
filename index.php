@@ -32,6 +32,7 @@ class SvjatBlocksReg1 {
     function __construct() {
     add_action( 'init', array($this, 'adminAssets'));
     }
+    
     function adminAssets() {
         wp_register_script( 'svjatJScourse', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks') ); 
         wp_register_style( 'svjatCSScourse', plugin_dir_url(__FILE__) . 'build/index.css' );
@@ -44,10 +45,22 @@ class SvjatBlocksReg1 {
             'editor_script' => 'svjatJScourse',
             // Enqueue blocks.editor.build.css in the editor only.
             // 'editor_style' => 'my_block-cgb-block-editor-css',
-            // 'render_callback' => $this->callback,
+            'render_callback' => 'new_svjat_block_course',
             )
         );
     }
+}
+
+function new_svjat_block_course ($attributes, $content )
+{
+$posts = get_posts(
+['category' => $attributes['selectedCategory']]
+);
+ob_start();
+foreach ($posts as $post) {
+echo '<h2 class="sv-block-course">' . $post->post_title . '</h2>';
+}
+return ob_get_clean();
 }
 
 $course_reg = new SvjatBlocksReg1();
