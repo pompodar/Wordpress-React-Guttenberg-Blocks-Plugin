@@ -42,6 +42,42 @@ class FirstBlockEdit extends Component {
       setAttributes
     } = this.props;
     const alignmentClass = attributes.textAlignment != null ? "has-text-align-" + attributes.textAlignment : "";
+    let cats = [];
+    let selectedCat;
+    let posts = [1];
+    wp.apiFetch({
+      url: "/wp-json/wp/v2/categories"
+    }).then(categories => {
+      setAttributes({
+        categories: categories
+      });
+    });
+
+    if (attributes.categories) {
+      cats = attributes.categories;
+      selectedCat = attributes.selectedCategory;
+      posts = attributes.posts;
+    }
+
+    if (attributes.selectedCategory) {
+      wp.apiFetch({
+        url: "/wp-json/wp/v2/posts?categories=" + attributes.selectedCategory
+      }).then(posts => {
+        setAttributes({
+          posts: posts
+        });
+      });
+    }
+
+    function updateCategory(e) {
+      setAttributes({
+        selectedCategory: e.target.value
+      });
+    }
+
+    const divStyle = {
+      background: attributes.favoriteColor
+    };
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: alignmentClass
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(PanelBody, {
@@ -93,7 +129,19 @@ class FirstBlockEdit extends Component {
       icon: "edit",
       className: "my-custom-button",
       onClick: () => console.log("pressed button")
-    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(RichText, {
+    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("select", {
+      onChange: updateCategory,
+      value: selectedCat
+    }, cats.map(cat => {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
+        value: cat.id,
+        key: cat.id
+      }, cat.name);
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, posts.map(post => {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        style: divStyle
+      }, post.slug);
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(RichText, {
       tagName: "h2",
       placeholder: "Write your heading here",
       value: attributes.myRichHeading,
@@ -143,6 +191,15 @@ registerBlockType("course-block/my-new-block-course2", {
     activateLasers: {
       type: "boolean",
       default: false
+    },
+    categories: {
+      type: "object"
+    },
+    selectedCategory: {
+      type: "string"
+    },
+    posts: {
+      type: "object"
     }
   },
   supports: {

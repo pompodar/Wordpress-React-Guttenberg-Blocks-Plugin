@@ -14,6 +14,7 @@ const {
 } = wp.components;
 
 class FirstBlockEdit extends Component {
+    
     render() {
         const { attributes, setAttributes } = this.props;
 
@@ -22,6 +23,50 @@ class FirstBlockEdit extends Component {
                 ? "has-text-align-" + attributes.textAlignment
                 : "";
 
+let cats = [];
+        let selectedCat;
+        let posts = [1];
+
+wp.apiFetch({
+    url: "/wp-json/wp/v2/categories",
+}).then((categories) => {
+    setAttributes({
+        categories: categories,
+    });
+});
+        
+       
+        
+if (attributes.categories) {
+    cats = attributes.categories;
+    selectedCat = attributes.selectedCategory;
+    
+        posts = attributes.posts;
+
+}
+
+        if (attributes.selectedCategory) {
+            wp.apiFetch({
+                url:
+                    "/wp-json/wp/v2/posts?categories=" + attributes.selectedCategory,
+            }).then((posts) => {
+                setAttributes({
+                    posts: posts,
+                });
+            });
+        }
+
+
+        function updateCategory(e) {
+    setAttributes({
+        selectedCategory: e.target.value,
+    });
+        }
+        
+        const divStyle = {
+    background: attributes.favoriteColor
+};
+        
         return (
             <div className={alignmentClass}>
                 <InspectorControls>
@@ -59,9 +104,10 @@ class FirstBlockEdit extends Component {
                             <ColorPicker
                                 color={attributes.favoriteColor}
                                 onChangeComplete={(newval) => {
-                                    setAttributes({ favoriteColor: newval.hex });
-                                }
-                                }
+                                    setAttributes({
+                                        favoriteColor: newval.hex,
+                                    });
+                                }}
                                 disableAlpha
                             />
                         </PanelRow>
@@ -92,6 +138,24 @@ class FirstBlockEdit extends Component {
                         />
                     </Toolbar>
                 </BlockControls>
+                <select onChange={updateCategory} value={selectedCat}>
+                    {cats.map((cat) => {
+                        return (
+                            <option value={cat.id} key={cat.id}>
+                                {cat.name}
+                            </option>
+                        );
+                    })}
+                </select>
+                <div>
+                    {posts.map((post) => {
+                        return (
+                            <div style={divStyle}>
+                                {post.slug}
+                            </div>
+                        );
+                    })}
+                </div>
                 <RichText
                     tagName="h2"
                     placeholder="Write your heading here"
@@ -144,6 +208,15 @@ registerBlockType("course-block/my-new-block-course2", {
         activateLasers: {
             type: "boolean",
             default: false,
+        },
+        categories: {
+            type: "object",
+        },
+        selectedCategory: {
+            type: "string",
+        },
+        posts: {
+            type: "object",
         },
     },
     supports: {
