@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Plugin Name: Svjatoslav block CGB Gutenberg Block Plugin
+ * Plugin Name: Course block CGB Gutenberg Block Plugin
  * Plugin URI: https://github.com/ahmadawais/create-guten-block/
  * Description: It's is a Gutenberg plugin created via create-guten-block.
- * Author: more index.php optimization 
+ * Author: 
  * Author URI: https://AhmadAwais.com/
  * Version: 1.0.0
  * License: GPL2+
@@ -27,14 +27,27 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-// Register Blocks 
-class BlocksReg {  
-function __construct() {
-    add_action( 'enqueue_block_editor_assets', array($this, 'adminAssets'));
-}
-function adminAssets() {
-    wp_enqueue_script( 'svjatJSFile', plugin_dir_url(__FILE__) . 'test.js', array('wp-blocks') ); // script name should be uniqe thoughout site
+
+class SvjatBlocksReg1 {
+    function __construct() {
+    add_action( 'init', array($this, 'adminAssets'));
+    }
+    function adminAssets() {
+        wp_register_script( 'svjatJScourse', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks') ); 
+        wp_register_style( 'svjatCSScourse', plugin_dir_url(__FILE__) . 'build/index.css' );
+
+        register_block_type(
+            'course-block/my-new-block-course', array(
+            // Enqueue blocks.style.build.css on both frontend & backend.
+            'style' => 'svjatCSScourse',
+            // Enqueue blocks.build.js in the editor only.
+            'editor_script' => 'svjatJScourse',
+            // Enqueue blocks.editor.build.css in the editor only.
+            // 'editor_style' => 'my_block-cgb-block-editor-css',
+            // 'render_callback' => $this->callback,
+            )
+        );
     }
 }
 
-$blockReg = new BlocksReg();
+$course_reg = new SvjatBlocksReg1();
