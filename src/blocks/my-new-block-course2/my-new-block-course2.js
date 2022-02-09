@@ -1,105 +1,175 @@
-/**
- * BLOCK: react-lifecycle-block
- *
- * Registering a basic block with Gutenberg.
- * Simple block, renders and saves the same content without any interactivity.
- */
+const { registerBlockType } = wp.blocks;
+const { Component } = wp.element;
+const { RichText, InspectorControls, BlockControls, AlignmentToolbar } =
+    wp.blockEditor;
+const {
+    ToggleControl,
+    PanelBody,
+    PanelRow,
+    CheckboxControl,
+    SelectControl,
+    ColorPicker,
+    Toolbar,
+    IconButton,
+} = wp.components;
 
-//  Import CSS.
-// import "./style.scss";
-// import "./editor.scss";
+class FirstBlockEdit extends Component {
+    render() {
+        const { attributes, setAttributes } = this.props;
 
-const { __ } = wp.i18n; // Import __() from wp.i18n
-const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { Component } = wp.element; // Import the Component base class from the React.js abstraction
+        const alignmentClass =
+            attributes.textAlignment != null
+                ? "has-text-align-" + attributes.textAlignment
+                : "";
 
-/**
- * Register: aa Gutenberg Block.
- *
- * Registers a new block provided a unique name and an object defining its
- * behavior. Once registered, the block is made editor as an option to any
- * editor interface where blocks are implemented.
- *
- * @link https://wordpress.org/gutenberg/handbook/block-api/
- * @param  {string}   name     Block name.
- * @param  {Object}   settings Block settings.
- * @return {?WPBlock}          The block, if it has been successfully
- *                             registered; otherwise `undefined`.
- */
+        return (
+            <div className={alignmentClass}>
+                <InspectorControls>
+                    <PanelBody
+                        title="Most awesome settings ever"
+                        initialOpen={true}
+                    >
+                        <PanelRow>
+                            <ToggleControl
+                                label="Toggle me"
+                                checked={attributes.toggle}
+                                onChange={(newval) =>
+                                    setAttributes({ toggle: newval })
+                                }
+                            />
+                        </PanelRow>
+                        <PanelRow>
+                            <SelectControl
+                                label="What's your favorite animal?"
+                                value={attributes.favoriteAnimal}
+                                options={[
+                                    { label: "Dogs", value: "dogs" },
+                                    { label: "Cats", value: "cats" },
+                                    {
+                                        label: "Something else",
+                                        value: "weird_one",
+                                    },
+                                ]}
+                                onChange={(newval) =>
+                                    setAttributes({ favoriteAnimal: newval })
+                                }
+                            />
+                        </PanelRow>
+                        <PanelRow>
+                            <ColorPicker
+                                color={attributes.favoriteColor}
+                                onChangeComplete={(newval) => {
+                                    setAttributes({ favoriteColor: newval.hex });
+                                }
+                                }
+                                disableAlpha
+                            />
+                        </PanelRow>
+                        <PanelRow>
+                            <CheckboxControl
+                                label="Activate lasers?"
+                                checked={attributes.activateLasers}
+                                onChange={(newval) =>
+                                    setAttributes({ activateLasers: newval })
+                                }
+                            />
+                        </PanelRow>
+                    </PanelBody>
+                </InspectorControls>
+                <BlockControls>
+                    <AlignmentToolbar
+                        value={attributes.textAlignment}
+                        onChange={(newalign) =>
+                            setAttributes({ textAlignment: newalign })
+                        }
+                    />
+                    <Toolbar>
+                        <IconButton
+                            label="My very own custom button"
+                            icon="edit"
+                            className="my-custom-button"
+                            onClick={() => console.log("pressed button")}
+                        />
+                    </Toolbar>
+                </BlockControls>
+                <RichText
+                    tagName="h2"
+                    placeholder="Write your heading here"
+                    value={attributes.myRichHeading}
+                    onChange={(newtext) =>
+                        setAttributes({ myRichHeading: newtext })
+                    }
+                />
+                <RichText
+                    tagName="p"
+                    placeholder="Write your paragraph here"
+                    value={attributes.myRichText}
+                    onChange={(newtext) =>
+                        setAttributes({ myRichText: newtext })
+                    }
+                />
+            </div>
+        );
+    }
+}
+
 registerBlockType("course-block/my-new-block-course2", {
-    // Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-    title: __("new course block2 - CGB Block"), // Block title.
-    icon: "shield", // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
-    category: "common", // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
-    keywords: [
-        __("new course block2 — CGB Block"),
-        __("CGB Example"),
-        __("create-guten-block"),
-    ],
+    title: "my-new-block-course2",
+    category: "common",
+    icon: "smiley",
+    description: "Learning in progress",
+    keywords: ["my-new-block-course2"],
     attributes: {
-        categories: {
-            type: "object",
-        },
-        selectedCategory: {
+        myRichHeading: {
             type: "string",
         },
+        myRichText: {
+            type: "string",
+        },
+        textAlignment: {
+            type: "string",
+        },
+        toggle: {
+            type: "boolean",
+            default: true,
+        },
+        favoriteAnimal: {
+            type: "string",
+            default: "dogs",
+        },
+        favoriteColor: {
+            type: "string",
+            default: "#DDDDDD",
+        },
+        activateLasers: {
+            type: "boolean",
+            default: false,
+        },
     },
-    /**
-     * The edit function describes the structure of your block in the context of the editor.
-     * This represents what the editor will render when the block is used.
-     *
-     * The "edit" property must be a valid function.
-     *
-     * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
-     */
-    edit: (props) => {
-       let cats = [];
-       let selectedCat;
-
-       wp.apiFetch({
-           url: "/wp-json/wp/v2/categories",
-       }).then((categories) => {
-           props.setAttributes({
-               categories: categories,
-           });
-       });
-       if (props.attributes.categories) {
-           cats = props.attributes.categories;
-           selectedCat = props.attributes.selectedCategory;
-       }
-
-       console.log(props.attributes);
-
-       function updateCategory(e) {
-           props.setAttributes({
-               selectedCategory: e.target.value,
-           });
-       }
-
-       return (
-           <div>
-               <select onChange={updateCategory} value={selectedCat}>
-                   {cats.map((cat) => {
-                       return (
-                           <option value={cat.id} key={cat.id}>
-                               {cat.name}
-                           </option>
-                       );
-                   })}
-               </select>
-               <input type="text" placeholder="2"></input>
-           </div>
-       );
+    supports: {
+        align: ["wide", "full"],
     },
-    /**
-     * The save function defines the way in which the different attributes should be combined
-     * into the final markup, which is then serialized by Gutenberg into post_content.
-     *
-     * The "save" property must be specified and must be a valid function.
-     *
-     * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
-     */
-    save: function (props) {
+    edit: FirstBlockEdit,
+    save: (props) => {
         return null;
+        // const { attributes } = props;
+
+        // const alignmentClass =
+        //     attributes.textAlignment != null
+        //         ? "has-text-align-" + attributes.textAlignment
+        //         : "";
+
+        // return (
+        //     <div className={alignmentClass}>
+        //         <RichText.Content
+        //             tagName="h2"
+        //             value={attributes.myRichHeading}
+        //         />
+        //         <RichText.Content tagName="p" value={attributes.myRichText} />
+        //         {attributes.activateLasers && (
+        //             <div className="lasers">Lasers activated</div>
+        //         )}
+        //     </div>
+        // );
     },
 });

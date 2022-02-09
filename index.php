@@ -39,7 +39,7 @@ function __construct($name, $callback) {
 add_action( 'init', array($this, 'adminAssets'));
 }
 function adminAssets() {
-wp_register_script( 'svjatJScourse', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks') );
+wp_register_script( 'svjatJScourse', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks', 'wp-element', 'wp-editor') );
 wp_register_style( 'svjatCSScourse', plugin_dir_url(__FILE__) . 'build/index.css' );
 
 register_block_type(
