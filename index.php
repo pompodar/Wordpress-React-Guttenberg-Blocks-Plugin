@@ -57,14 +57,13 @@ register_block_type(
 }
 
 foreach (scandir(realpath(__DIR__ . "/src/blocks/")) as $folders) {
-        if (strpos($folders, 'block') !== false) {
-            if ($count == 0) {
-            $files[] = $folders;
-             foreach (array_unique($files) as $file) {
-             $address = '/src/blocks/' . $file . '/' . $file . '.php';
+    if (strpos($folders, 'block') !== false) {
+        $files[] = $folders;
+
+        foreach (array_unique($files) as $file) {
+            $address = '/src/blocks/' . $file . '/' . $file . '.php';
             require_once(dirname(__FILE__). $address);
-         }
-         }
-         }
+        }
     }
+}
     
