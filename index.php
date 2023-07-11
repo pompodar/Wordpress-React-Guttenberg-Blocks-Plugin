@@ -30,8 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class SvjatBlocksReg1 {
 
-protected $name;
-protected $callback; 
+    protected $name;
+    protected $callback; 
     
 function __construct($name, $callback) {
     $this->name = $name;
